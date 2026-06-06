@@ -1,0 +1,172 @@
+
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Cambio de Medida y Martingalas en Derivados\\
+Verificación de Martingala en Precios Descontados}
+\author{Tomas Natividad \and Alvaro Garcia}
+\date{Mayo 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+
+En finanzas matemáticas, uno de los resultados fundamentales de la teoría de valuación libre de arbitraje establece que existe una medida neutral al riesgo $Q$, bajo la cual el precio descontado de un activo riesgoso se comporta como una martingala.
+
+La propiedad central es:
+
+\begin{equation}
+E^Q[e^{-rT}S_T]=S_0
+\end{equation}
+
+mientras que bajo la medida histórica $P$:
+
+\begin{equation}
+E^P[e^{-rT}S_T]=S_0e^{(\mu-r)T}
+\end{equation}
+
+El objetivo de este proyecto es verificar numéricamente estas propiedades mediante simulación Monte Carlo utilizando datos reales del ETF SPY.
+
+\section{Marco Teórico}
+
+\subsection{Modelo bajo P}
+
+El activo sigue un Movimiento Browniano Geométrico:
+
+\begin{equation}
+\frac{dS_t}{S_t}=\mu dt+\sigma dB_t^P
+\end{equation}
+
+cuya solución es:
+
+\begin{equation}
+S_T=S_0\exp\left[\left(\mu-\frac{\sigma^2}{2}\right)T+\sigma B_T^P\right]
+\end{equation}
+
+\subsection{Cambio de medida}
+
+El precio de mercado del riesgo es:
+
+\begin{equation}
+\lambda=\frac{\mu-r}{\sigma}
+\end{equation}
+
+y la densidad de Radon-Nikodym:
+
+\begin{equation}
+Z_T=\exp\left(-\lambda B_T^P-\frac{1}{2}\lambda^2T\right)
+\end{equation}
+
+\subsection{Modelo bajo Q}
+
+\begin{equation}
+\frac{dS_t}{S_t}=rdt+\sigma dB_t^Q
+\end{equation}
+
+\begin{equation}
+S_T=S_0\exp\left[\left(r-\frac{\sigma^2}{2}\right)T+\sigma B_T^Q\right]
+\end{equation}
+
+Definiendo el precio descontado:
+
+\begin{equation}
+\tilde S_t=e^{-rt}S_t
+\end{equation}
+
+se obtiene:
+
+\begin{equation}
+d\tilde S_t=e^{-rt}\sigma S_t dB_t^Q
+\end{equation}
+
+por lo que $\tilde S_t$ es una martingala bajo $Q$.
+
+\section{Datos y Metodología}
+
+Se utilizaron datos del ETF SPY para el periodo 2021--2023.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+Parámetro & Valor \\
+\midrule
+$S_0$ & 462.58 \\
+$\mu$ & 11.54\% \\
+$\sigma$ & 17.61\% \\
+$r$ & 4.50\% \\
+$\lambda$ & 0.3999 \\
+$N$ & 10,000 \\
+$T$ & 1 año \\
+\bottomrule
+\end{tabular}
+\caption{Parámetros utilizados en la simulación}
+\end{table}
+
+La simulación Monte Carlo utilizó los mismos choques aleatorios bajo ambas medidas, modificando únicamente el drift.
+
+\section{Resultados}
+
+Los resultados principales fueron:
+
+\begin{align}
+E^Q[e^{-rT}S_T] &\approx 461.85 \\
+S_0 &= 462.58
+\end{align}
+
+y
+
+\begin{equation}
+E^P[e^{-rT}S_T]\approx495.54
+\end{equation}
+
+confirmando que el precio descontado es martingala bajo $Q$ pero no bajo $P$.
+
+Además,
+
+\begin{equation}
+E^P[Z_T e^{-rT}S_T]\approx463.16
+\end{equation}
+
+lo cual valida el cambio de medida.
+
+\section{Valuación de Opciones}
+
+El valor de una call europea viene dado por:
+
+\begin{equation}
+V_0=e^{-rT}E^Q[(S_T-K)^+]
+\end{equation}
+
+Para una opción ATM:
+
+\begin{equation}
+V_0 \approx 42.03
+\end{equation}
+
+resultado consistente con el precio de Black--Scholes.
+
+\section{Conclusiones}
+
+La simulación Monte Carlo confirmó la propiedad de martingala de los precios descontados bajo la medida neutral al riesgo. Asimismo, se verificó la consistencia del Teorema de Girsanov y la equivalencia entre la valuación Monte Carlo bajo $Q$ y el modelo de Black--Scholes.
+
+\section{Referencias}
+
+\begin{enumerate}
+\item Galindo, C. (2025).
+\item Black, F. y Scholes, M. (1973).
+\item Shreve, S. (2004).
+\item Oksendal, B. (2003).
+\item Bjork, T. (2009).
+\end{enumerate}
+
+\end{document}
